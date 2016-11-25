@@ -7,8 +7,7 @@
 #include <ctype.h>
 #include "structs.h"
 #include "common.h"
-#define max(a,b)    (((a)>=(b)) ? (a):(b))
-#define min(x,y)    (((x) < (y)) ? (x) : (y))
+
 
 
 
@@ -171,4 +170,39 @@ void NW(char * X, uint64_t Xstart, uint64_t Xend, char * Y, uint64_t Ystart, uin
 
     fprintf(stdout, "[INFO] Table completed\n");
 
+}
+
+
+
+void backtrackingNW(char * X, uint64_t Xstart, uint64_t Xend, char * Y, uint64_t Ystart, uint64_t Yend, struct cell ** table, char * rec_X, char * rec_Y){
+    uint64_t curr_x, curr_y, prev_x, prev_y;
+    uint64_t k;
+    curr_x = Xend-1;
+    curr_y = Yend-1;
+    prev_x = curr_x;
+    prev_y = curr_y;
+
+    rec_X[curr_x] = X[curr_x];
+    rec_Y[curr_y] = Y[curr_y];
+
+    while(curr_x > 0 && curr_y > 0){
+        curr_x = table[curr_x][curr_y].xfrom;
+        curr_y = table[curr_x][curr_y].yfrom;
+
+        if(curr_x == (prev_x - 1) && curr_y == (prev_y -1)){
+            //Diagonal case
+            rec_X[curr_x] = X[curr_x];
+            rec_Y[curr_y] = Y[curr_y];
+        }else if((prev_x - curr_x) > (prev_y - curr_y)){
+            //Gap in X
+            for(k=prev_x;k>curr_x;k--){
+                rec_Y[k] = '-';
+            }
+        }else{
+            //Gap in Y
+            for(k=prev_y;k>curr_y;k--){
+                rec_X[k] = '-';
+            }
+        }
+    }
 }

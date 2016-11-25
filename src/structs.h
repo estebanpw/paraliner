@@ -4,7 +4,10 @@
 #define MAXLID 50
 #define STARTSIZE 50000000 
 #define MATCH 4
+#define ALIGN_LEN 60
 
+#define max(a,b)    (((a)>=(b)) ? (a):(b))
+#define min(x,y)    (((x) < (y)) ? (x) : (y))
 
 struct Sequence{ 
   char id[MAXLID];
