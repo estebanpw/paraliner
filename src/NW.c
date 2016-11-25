@@ -81,16 +81,15 @@ int main(int ac, char **av){
 	struct cell ** table = (struct cell **) malloc(xlen * sizeof(struct cell *));
 	uint64_t i;
 
-	exit(-1);
 
 	for(i=0;i<xlen;i++){
 		table[i] = (struct cell *) malloc(ylen * sizeof(struct cell));
 	}
-    if(table == NULL) terror("Could not allocate NW table");
+    	if(table == NULL) terror("Could not allocate NW table");
 
 
 
-   	struct cell bc = NW(sx.data, 0, xlen, sy.data, 0, ylen, iGap, eGap, table, mc);
+   	NW(sx.data, 0, xlen, sy.data, 0, ylen, iGap, eGap, table, mc, show);
    	
 
 	

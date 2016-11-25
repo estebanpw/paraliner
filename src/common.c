@@ -70,9 +70,9 @@ char buffered_fgetc(char *buffer, uint64_t *pos, uint64_t *read, FILE *f) {
 }
 
 
-struct cell NW(char * X, uint64_t Xstart, uint64_t Xend, char * Y, uint64_t Ystart, uint64_t Yend, int iGap, int eGap, struct cell ** table, struct positioned_cell * mc){
+void NW(char * X, uint64_t Xstart, uint64_t Xend, char * Y, uint64_t Ystart, uint64_t Yend, int iGap, int eGap, struct cell ** table, struct positioned_cell * mc, int show){
     
-    uint64_t i,j,k;
+    uint64_t i,j;
     int64_t scoreDiagonal,scoreLeft,scoreRight,score;
 
     
@@ -103,9 +103,9 @@ struct cell NW(char * X, uint64_t Xstart, uint64_t Xend, char * Y, uint64_t Ysta
     //Go through full matrix
     for(i=1;i<Xend;i++){
         //Fill first rowcell
-        if( ((float)i/Xend)*100 > percentage+1){
-            percentage = ((float)i/Xend)*100;
-            printf("..%d%%", percentage);
+        if(show==1 && ((double)i/(double)Xend)*100 > percentage+1){
+            percentage = ((double)i/(double)Xend)*100;
+            printf("..%d%%\n", percentage);
         }
         
 
@@ -169,20 +169,6 @@ struct cell NW(char * X, uint64_t Xstart, uint64_t Xend, char * Y, uint64_t Ysta
         }
     }
 
+    fprintf(stdout, "[INFO] Table completed\n");
 
-    int64_t bestScore = table[Xend][0].score, bestId = 0;
-    for(k=0;k<Yend;k++){
-
-        if(table[i][k].score >= bestScore){
-            bestScore = table[i][k].score;
-            bestId = k;
-        }
-    }
-    
-
-
-    //FORCING GLOBAL ALIGNMENT
-    //return f0[Yend-1];
-    
-    return table[i][bestId];
 }
