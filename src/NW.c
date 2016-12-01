@@ -78,11 +78,8 @@ int main(int ac, char **av){
 	fprintf(stdout, "[INFO] Length of sequence X: %"PRIu64"\n", xlen);
 	fprintf(stdout, "[INFO] Length of sequence Y: %"PRIu64"\n", ylen);
 	
-	uint64_t maximum_len = max(xlen, ylen);
+	uint64_t maximum_len = 2*max(xlen, ylen);
 
-	char * reconstruct_X = (char *) malloc(maximum_len * sizeof(char));
-	char * reconstruct_Y = (char *) malloc(maximum_len * sizeof(char));
-	if(reconstruct_Y == NULL || reconstruct_X == NULL) terror("Could not allocate output alignment sequences");
 
 	struct positioned_cell * mc = (struct positioned_cell *) malloc(ylen * sizeof(struct positioned_cell));
 	struct cell ** table = (struct cell **) malloc(xlen * sizeof(struct cell *));
@@ -92,22 +89,55 @@ int main(int ac, char **av){
 	for(i=0;i<xlen;i++){
 		table[i] = (struct cell *) malloc(ylen * sizeof(struct cell));
 	}
-    if(table == NULL) terror("Could not allocate NW table");
+    	if(table == NULL) terror("Could not allocate NW table");
 
 
+	struct positioned_cell best_cell;
+	best_cell = NW(sx.data, 0, xlen, sy.data, 0, ylen, (int64_t) iGap, (int64_t)eGap, table, mc, show);
+	
+	/*
+	for(i=0;i<xlen;i++){
+		for(j=0;j<ylen;j++){
+			printf("%"PRId64"\t", table[i][j].score);
+		}
+		printf("\n");
+	}
+	*/
 
-   	NW(sx.data, 0, xlen, sy.data, 0, ylen, iGap, eGap, table, mc, show);
-   	backtrackingNW(sx.data, 0, xlen, sy.data, 0, ylen, table, reconstruct_X, reconstruct_Y);
+        char * reconstruct_X = (char *) malloc(maximum_len * sizeof(char));
+        char * reconstruct_Y = (char *) malloc(maximum_len * sizeof(char));
+        if(reconstruct_Y == NULL || reconstruct_X == NULL) terror("Could not allocate output alignment sequences");
 
-   	i=0;
-   	j=0;
-   	while(i<maximum_len && j<maximum_len){
-   		fprintf(out, "%"PRIu64"\t\t", i);
-   		i += fwrite(&reconstruct_X[i], sizeof(char), ALIGN_LEN, out);
-   		fprintf(out, " %"PRIu64" \n", i);
-   		fprintf(out, "%"PRIu64"\t\t", j);
-   		j += fwrite(&reconstruct_Y[j], sizeof(char), ALIGN_LEN, out);
-   		fprintf(out, " %"PRIu64" \n", j);
+	backtrackingNW(sx.data, 0, xlen, sy.data, 0, ylen, table, reconstruct_X, reconstruct_Y, &best_cell, &i, &j);
+	uint64_t offset = 0, before_i, before_j;
+	i++; j++;
+   	while(i <= maximum_len && j <= maximum_len){
+		offset = 0;
+		before_i = i;
+		while(offset < ALIGN_LEN && i <= maximum_len){
+			fprintf(out, "%c", reconstruct_X[i]);
+			i++;
+			offset++;
+		}
+		fprintf(out, "\n");
+		offset = 0;
+		before_j = j;
+		while(offset < ALIGN_LEN && j <= maximum_len){
+			fprintf(out, "%c", reconstruct_Y[j]);
+			j++;
+			offset++;
+		}
+		fprintf(out, "\n");
+		while(before_i < i){
+			if(reconstruct_X[before_i] == reconstruct_Y[before_j]){
+				fprintf(out, "*");
+			}else{
+				fprintf(out, " ");
+			}
+			before_j++;
+			before_i++;
+		}
+		fprintf(out, "\n\n");
 
    	}
 	
